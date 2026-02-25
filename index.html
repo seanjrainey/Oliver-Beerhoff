@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2-Player Football Card Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+
+    <main class="app-shell">
+      <header class="hero">
+        <p class="eyebrow">Card Matchday</p>
+        <h1>2-Player Football Card Game</h1>
+        <p class="subtitle">Hot-seat web version you can share with friends.</p>
+      </header>
+
+      <section id="setup-card" class="panel">
+        <h2>Match Setup</h2>
+        <form id="setup-form" class="setup-grid">
+          <label>
+            Home Team Name
+            <input id="nonDealerName" type="text" maxlength="20" required />
+          </label>
+          <label>
+            Away Team Name
+            <input id="dealerName" type="text" maxlength="20" required />
+          </label>
+          <label class="full-width">
+            Formation (Home Team chooses)
+            <select id="formation" required>
+              <option value="4-4-2">4-4-2</option>
+              <option value="4-3-3">4-3-3</option>
+              <option value="4-2-3-1">4-2-3-1</option>
+              <option value="3-5-2" selected>3-5-2</option>
+              <option value="3-4-3">3-4-3</option>
+              <option value="5-3-2">5-3-2</option>
+              <option value="4-1-4-1">4-1-4-1</option>
+              <option value="4-3-1-2">4-3-1-2 (Diamond)</option>
+              <option value="4-5-1">4-5-1</option>
+              <option value="3-4-1-2">3-4-1-2</option>
+            </select>
+          </label>
+          <button type="submit" class="btn primary">Start Match</button>
+        </form>
+        <p class="context setup-note">Home Team = non-dealer (home-ground advantage). Away Team = dealer.</p>
+        <p id="setup-error" class="error" aria-live="polite"></p>
+      </section>
+
+      <section id="game-board" class="panel hidden">
+        <div class="game-layout">
+          <div class="game-main">
+            <div class="score-wrap">
+              <article class="score-card">
+                <h3 id="nd-name">Home Team</h3>
+                <p class="score" id="nd-score">0</p>
+                <p class="subs" id="nd-subs">Subs: 3</p>
+              </article>
+              <article class="score-card">
+                <h3 id="d-name">Away Team</h3>
+                <p class="score" id="d-score">0</p>
+                <p class="subs" id="d-subs">Subs: 3</p>
+              </article>
+            </div>
+
+            <div id="formation-panel" class="panel inner-panel hidden">
+              <div class="formation-head">
+                <h2>Formation View</h2>
+                <p class="context">Cards stay face down until revealed during battles.</p>
+              </div>
+              <div class="formation-wrap">
+                <article class="formation-team">
+                  <h3 id="formation-p1-title">Home Team</h3>
+                  <div id="formation-p1" class="formation-pitch"></div>
+                </article>
+                <article class="formation-team">
+                  <h3 id="formation-p2-title">Away Team</h3>
+                  <div id="formation-p2" class="formation-pitch"></div>
+                </article>
+              </div>
+            </div>
+
+            <div id="battle-panel" class="panel inner-panel hidden">
+              <div class="battle-head">
+                <p id="phase-label" class="phase-label">Battle</p>
+                <h2 id="battle-title">GK</h2>
+                <p id="battle-context" class="context"></p>
+              </div>
+
+              <div class="card-row">
+                <article class="card-slot">
+                  <p id="attacker-role" class="role-tag">Attacker</p>
+                  <p id="attacker-name" class="player-name"></p>
+                  <div id="attacker-card" class="card-face hidden-card">Face Down</div>
+                </article>
+                <article class="card-slot">
+                  <p id="defender-role" class="role-tag">Defender</p>
+                  <p id="defender-name" class="player-name"></p>
+                  <div id="defender-card" class="card-face hidden-card">Face Down</div>
+                </article>
+              </div>
+
+              <div id="sub-panel" class="sub-panel hidden">
+                <p id="sub-help"></p>
+                <div id="sub-options" class="sub-options"></div>
+              </div>
+
+              <div class="action-layout">
+                <div id="action-left" class="action-lane left"></div>
+                <div id="action-center" class="action-lane center"></div>
+                <div id="action-right" class="action-lane right"></div>
+              </div>
+            </div>
+
+            <div id="penalty-panel" class="panel inner-panel hidden">
+              <h2>Penalty Shootout</h2>
+              <p id="penalty-context" class="context"></p>
+              <div class="scoreline" id="penalty-scoreline">0 - 0</div>
+              <div id="penalty-last" class="penalty-last">No penalty revealed yet.</div>
+              <div id="penalty-action" class="action-row"></div>
+            </div>
+
+            <div id="result-panel" class="panel inner-panel hidden">
+              <h2 id="result-title">Full Time</h2>
+              <p id="result-text"></p>
+              <button id="play-again" class="btn primary">Play Again</button>
+            </div>
+          </div>
+          <div class="log-wrap">
+            <h3>Match Log</h3>
+            <ul id="match-log"></ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
