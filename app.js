@@ -15,6 +15,7 @@ const state = {
   currentBattle: null,
   penalty: null,
   winnerKey: null,
+  battlePopup: null,
   log: [],
 };
 
@@ -59,6 +60,10 @@ const dom = {
   penaltyScoreline: document.getElementById("penalty-scoreline"),
   penaltyLast: document.getElementById("penalty-last"),
   penaltyAction: document.getElementById("penalty-action"),
+  battlePopup: document.getElementById("battle-popup"),
+  battlePopupTitle: document.getElementById("battle-popup-title"),
+  battlePopupBody: document.getElementById("battle-popup-body"),
+  battlePopupClose: document.getElementById("battle-popup-close"),
 
   resultPanel: document.getElementById("result-panel"),
   resultTitle: document.getElementById("result-title"),
@@ -419,6 +424,11 @@ function renderBattlePanel() {
   }
 
   if (state.stage === "battle-result") {
+    if (state.battlePopup && state.battlePopup.open) {
+      renderBattleActions({ left: [], center: [], right: [] });
+      return;
+    }
+
     const isLast = state.battleIndex >= state.positions.length - 1;
     renderBattleActions({
       left: [],
@@ -431,6 +441,15 @@ function renderBattlePanel() {
       right: [],
     });
   }
+}
+
+function renderBattlePopup() {
+  const popup = state.battlePopup;
+  if (!popup || !popup.open) {
+    return;
+  }
+  dom.battlePopupTitle.textContent = popup.title;
+  dom.battlePopupBody.textContent = popup.body;
 }
 
 function renderPenaltyPanel() {
@@ -492,6 +511,7 @@ function render() {
   dom.battlePanel.classList.toggle("hidden", !state.started || !state.stage.startsWith("battle"));
   dom.penaltyPanel.classList.toggle("hidden", state.stage !== "penalty");
   dom.resultPanel.classList.toggle("hidden", state.stage !== "finished");
+  dom.battlePopup.classList.toggle("hidden", !(state.battlePopup && state.battlePopup.open));
 
   if (state.started) {
     renderFormationBoard();
@@ -505,6 +525,9 @@ function render() {
   }
   if (state.stage === "finished") {
     renderResultPanel();
+  }
+  if (state.battlePopup && state.battlePopup.open) {
+    renderBattlePopup();
   }
 }
 
@@ -564,16 +587,39 @@ function revealDefender() {
     attacker.points += 1;
     battle.resultText = `${attacker.name} wins ${battle.position} (+1).`;
     logEvent(battle.resultText);
+    state.battlePopup = {
+      open: true,
+      title: `${attacker.name} wins ${battle.position}`,
+      body: `${defender.name} loses this battle. Take a drink (drink responsibly).`,
+    };
   } else if (battle.defenderCard.value > battle.attackerCard.value) {
     defender.points += 1;
     battle.resultText = `${defender.name} wins ${battle.position} (+1).`;
     logEvent(battle.resultText);
+    state.battlePopup = {
+      open: true,
+      title: `${defender.name} wins ${battle.position}`,
+      body: `${attacker.name} loses this battle. Take a drink (drink responsibly).`,
+    };
   } else {
     battle.resultText = `${battle.position} is a draw.`;
     logEvent(battle.resultText);
+    state.battlePopup = {
+      open: true,
+      title: `${battle.position} is a draw`,
+      body: "No winner this battle. No drink.",
+    };
   }
 
   state.stage = "battle-result";
+  render();
+}
+
+function closeBattlePopup() {
+  if (!state.battlePopup || !state.battlePopup.open) {
+    return;
+  }
+  state.battlePopup.open = false;
   render();
 }
 
@@ -581,6 +627,7 @@ function nextBattle() {
   if (state.stage !== "battle-result") {
     return;
   }
+  state.battlePopup = null;
   state.battleIndex += 1;
   setupBattle();
   render();
@@ -589,6 +636,7 @@ function nextBattle() {
 function finishWithWinner(winnerKey, message) {
   state.winnerKey = winnerKey;
   state.stage = "finished";
+  state.battlePopup = null;
   if (message) {
     logEvent(message);
   }
@@ -627,6 +675,7 @@ function startPenaltyShootout() {
     roundGoals: null,
   };
   state.stage = "penalty";
+  state.battlePopup = null;
   dom.penaltyLast.textContent = "No penalty revealed yet.";
   logEvent("Full-time tie. Penalty shootout starts.");
   render();
@@ -735,6 +784,7 @@ function resetAll() {
   state.currentBattle = null;
   state.penalty = null;
   state.winnerKey = null;
+  state.battlePopup = null;
   state.log = [];
   state.players.nonDealer = { name: "", points: 0, lineup: [], subs: [] };
   state.players.dealer = { name: "", points: 0, lineup: [], subs: [] };
@@ -749,5 +799,6 @@ dom.setupForm.addEventListener("submit", (event) => {
 });
 
 dom.playAgain.addEventListener("click", resetAll);
+dom.battlePopupClose.addEventListener("click", closeBattlePopup);
 
 render();
